@@ -1,365 +1,151 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>陀螺仪数据</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>刘文辉 — 嵌入式工程师</title>
   <style>
-    .data {
-      font-size: 18px;
-      margin: 20px;
+    /* 全局样式：深色背景 + 轻微渐变 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    .button {
-      margin: 10px;
-      padding: 10px 20px;
-      font-size: 16px;
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /* 更现代的 sans-serif 字体栈：优先 Inter，其次系统现代字体 */
+      font-family: "Inter", "SF Pro Display", "Segoe UI", "PingFang SC",
+        "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+      /* 深蓝色渐变背景 */
+      background: linear-gradient(160deg, #0b1024 0%, #101a3c 40%, #0a2a5e 100%);
+      color: #eaeaea;
+      padding: 24px;
     }
 
-    .control-panel {
-      display: grid;
-      grid-template-areas:
-        ". up ."
-        "left reset right"
-        ". down .";
-      gap: 10px;
-      width: 300px;
-      margin: 20px auto;
+    .card {
+      width: 100%;
+      max-width: 560px;
+      /* 名片卡片：半透明深色 + 渐变描边感 */
+      background: rgba(20, 24, 40, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 48px 40px;
+      /* 卡片自身的轻微渐变与阴影 */
+      background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0) 60%);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      text-align: center;
     }
 
-    .btn-up {
-      grid-area: up;
+    /* 头像占位：渐变圆 */
+    .avatar {
+      width: 88px;
+      height: 88px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      filter: drop-shadow(0 6px 18px rgba(79, 172, 254, 0.35));
+      border: 3px solid rgba(255, 255, 255, 0.25);
     }
 
-    .btn-down {
-      grid-area: down;
+    h1 {
+      font-size: 30px;
+      font-weight: 600;
+      letter-spacing: 2px;
     }
 
-    .btn-left {
-      grid-area: left;
+    .role {
+      margin-top: 8px;
+      font-size: 15px;
+      color: #4facfe;
+      letter-spacing: 1px;
     }
 
-    .btn-right {
-      grid-area: right;
+    /* 分隔线 */
+    .divider {
+      width: 56px;
+      height: 2px;
+      margin: 24px auto;
+      background: linear-gradient(90deg, transparent, #4facfe, transparent);
+      border-radius: 2px;
     }
 
-    .btn-reset {
-      grid-area: reset;
+    /* 个人简介 */
+    .bio {
+      font-size: 14px;
+      line-height: 1.8;
+      color: #b8c0d0;
     }
 
-    .control-btn {
-      padding: 15px 30px;
-      font-size: 18px;
-      border: none;
-      border-radius: 5px;
-      background-color: #45a049;
-      color: white;
-      cursor: pointer;
+    /* 技能标签区域 */
+    .skills {
+      margin-top: 28px;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
     }
 
-    .control-btn:active {
-      background-color: #45a049;
+    .skill-tag {
+      padding: 8px 20px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      background: rgba(79, 172, 254, 0.12);
+      border: 1px solid rgba(79, 172, 254, 0.35);
+      color: #7cc4ff;
+      cursor: default;
+      /* 过渡所有可动画属性 */
+      transition: transform 0.25s ease, box-shadow 0.25s ease,
+        background 0.25s ease, color 0.25s ease;
     }
 
-    .btn-reset {
-      background-color: #f44336;
+    /* 悬停动画：上浮 + 发光 + 渐变色增强 */
+    .skill-tag:hover {
+      transform: translateY(-4px) scale(1.08);
+      background: linear-gradient(135deg, rgba(79, 172, 254, 0.35), rgba(0, 242, 254, 0.35));
+      border-color: rgba(0, 242, 254, 0.65);
+      color: #ffffff;
+      box-shadow: 0 8px 24px rgba(79, 172, 254, 0.4);
+    }
+
+    /* 底部版权 */
+    .footer {
+      margin-top: 32px;
+      font-size: 12px;
+      color: #5a6273;
     }
   </style>
 </head>
-
 <body>
-  <div class="data">
-    <p>Alpha (绕 z 轴旋转): <span id="alpha">0</span>°</p>
-    <p>Beta (绕 x 轴旋转): <span id="beta">0</span>°</p>
-    <p>Gamma (绕 y 轴旋转): <span id="gamma">0</span>°</p>
+  <div class="card">
+    <!-- 渐变头像占位 -->
+    <div class="avatar"></div>
+
+    <!-- 姓名与职业 -->
+    <h1>刘文辉</h1>
+    <p class="role">嵌入式工程师</p>
+
+    <div class="divider"></div>
+
+    <!-- 个人简介 -->
+    <p class="bio">
+      专注于嵌入式系统开发，热衷硬件与软件的交汇点。
+      相信一行优秀的代码和一块稳定的电路同样重要。
+    </p>
+
+    <!-- 技能标签 -->
+    <div class="skills">
+      <span class="skill-tag">C</span>
+      <span class="skill-tag">Python</span>
+      <span class="skill-tag">STM32</span>
+    </div>
+
+    <div class="footer">© 刘文辉 · 嵌入式工程师</div>
   </div>
-
-  <button id="permission-btn" class="button">允许访问陀螺仪</button>
-  <button id="ble-btn" class="button">连接蓝牙设备</button>
-  <button id="send-btn" class="button" disabled>发送数据</button>
-
-  <div class="control-panel">
-    <button class="control-btn btn-up">上</button>
-    <button class="control-btn btn-left">左</button>
-    <button class="control-btn btn-reset">复位</button>
-    <button class="control-btn btn-right">右</button>
-    <button class="control-btn btn-down">下</button>
-  </div>
-
-  <script>
-    let gyroData = { alpha: 0, beta: 0, gamma: 0 };
-    let bluetoothDevice;
-    let characteristicCache;
-    let isTransmitting = false; // 控制发送状态
-    let transmitInterval; // 发送定时器
-    let sendInterval = null;  // 用于存储定时器
-    const SEND_INTERVAL = 100;  // 发送间隔时间（毫秒）
-
-    const permissionBtn = document.getElementById('permission-btn');
-
-    permissionBtn.addEventListener('click', async () => {
-      try {
-        // 请求设备方向权限
-        if (DeviceOrientationEvent.requestPermission) {
-          const permission = await DeviceOrientationEvent.requestPermission();
-          if (permission === 'granted') {
-            permissionBtn.style.display = 'none';
-            initGyroscope();
-          }
-        } else {
-          // 对于不需要权限的设备，直接初始化
-          permissionBtn.style.display = 'none';
-          initGyroscope();
-        }
-      } catch (err) {
-        console.error('获取权限失败:', err);
-      }
-    });
-
-    function initGyroscope() {
-      window.addEventListener('deviceorientation', (event) => {
-        gyroData.alpha = Math.round(event.alpha);
-        gyroData.beta = Math.round(event.beta);
-        gyroData.gamma = Math.round(event.gamma);
-
-        document.getElementById('alpha').textContent = gyroData.alpha;
-        document.getElementById('beta').textContent = gyroData.beta;
-        document.getElementById('gamma').textContent = gyroData.gamma;
-      });
-    }
-
-    // 蓝牙连接相关代码
-    document.getElementById('ble-btn').addEventListener('click', async () => {
-      try {
-        console.log('开始搜索蓝牙设备...');
-
-        bluetoothDevice = await navigator.bluetooth.requestDevice({
-          // 接受所有设备
-          acceptAllDevices: true,
-          optionalServices: [
-            // BT04 可能使用的服务 UUID
-            '0000fff0-0000-1000-8000-00805f9b34fb',
-            '0000fff1-0000-1000-8000-00805f9b34fb',
-            '0000fff2-0000-1000-8000-00805f9b34fb',
-            '0000ffe0-0000-1000-8000-00805f9b34fb',
-            '0000ffe1-0000-1000-8000-00805f9b34fb'
-          ]
-        });
-
-        console.log('选择的设备:', bluetoothDevice);
-
-        // 连接到设备
-        const server = await bluetoothDevice.gatt.connect();
-        console.log('GATT 服务器已连接');
-
-        // 获取所有服务
-        const services = await server.getPrimaryServices();
-        console.log('可用的服务:', services);
-
-        // 遍历查找可用的服务和特征值
-        for (const service of services) {
-          console.log('发现服务:', service.uuid);
-          const characteristics = await service.getCharacteristics();
-
-          for (const characteristic of characteristics) {
-            console.log('发现特征值:', characteristic.uuid, {
-              canRead: characteristic.properties.read,
-              canWrite: characteristic.properties.write,
-              canNotify: characteristic.properties.notify
-            });
-
-            // 保存可写的特征值
-            if (characteristic.properties.write || characteristic.properties.writeWithoutResponse) {
-              characteristicCache = characteristic;
-            }
-          }
-        }
-
-        if (characteristicCache) {
-          document.getElementById('send-btn').disabled = false;
-          alert('蓝牙设备连接成功！');
-        } else {
-          throw new Error('未找到可写入的特征值');
-        }
-
-      } catch (error) {
-        console.error('蓝牙操作失败:', error);
-        alert('蓝牙操作失败: ' + error.message);
-      }
-    });
-
-    // 发送按钮事件监听
-    document.getElementById('send-btn').addEventListener('click', () => {
-      if (!isTransmitting) {
-        // 开始发送
-        startTransmitting();
-        document.getElementById('send-btn').textContent = '停止发送';
-      } else {
-        // 停止发送
-        stopTransmitting();
-        document.getElementById('send-btn').textContent = '发送数据';
-      }
-    });
-
-    // 开始发送数据
-    function startTransmitting() {
-      if (!characteristicCache) {
-        alert('请先连接蓝牙设备');
-        return;
-      }
-
-      isTransmitting = true;
-
-      transmitInterval = setInterval(async () => {
-        try {
-          // 获取当前陀螺仪数据
-          const data = {
-            alpha: parseInt(document.getElementById('alpha').textContent),
-            beta: parseInt(document.getElementById('beta').textContent),
-            gamma: parseInt(document.getElementById('gamma').textContent),
-          };
-
-          // 创建 DataView 来处理带符号的整数
-          const arrayBuffer = new ArrayBuffer(8); // 总长度：8字节
-          const dataView = new DataView(arrayBuffer);
-
-          // 写入数据（使用带符号的 16 位整数）
-          dataView.setInt16(0, data.alpha, true);  // 使用小端序
-          dataView.setInt16(2, data.beta, true);
-          dataView.setInt16(4, data.gamma, true);
-
-          // 构建最终的数据包
-          const buffer = new Uint8Array([
-            0xFF,                           // 包头
-            dataView.getUint8(0),          // Alpha 低字节
-            dataView.getUint8(1),          // Alpha 高字节
-            dataView.getUint8(2),          // Beta 低字节
-            dataView.getUint8(3),          // Beta 高字节
-            dataView.getUint8(4),          // Gamma 低字节
-            dataView.getUint8(5),          // Gamma 高字节
-            0xEE                           // 包尾
-          ]);
-
-          // 发送数据
-          await characteristicCache.writeValue(buffer);
-
-          // 打印原始数据和发送的数据包
-          console.log('原始数据:', {
-            alpha: data.alpha,
-            beta: data.beta,
-            gamma: data.gamma,
-            random: data.random
-          });
-          console.log('发送数据包:', Array.from(buffer).map(b => b.toString(16).padStart(2, '0')).join(' '));
-
-        } catch (error) {
-          console.error('发送数据失败:', error);
-          stopTransmitting();
-          alert('发送数据失败: ' + error.message);
-        }
-      }, 100);
-    }
-
-    // 停止发送数据
-    function stopTransmitting() {
-      isTransmitting = false;
-      if (transmitInterval) {
-        clearInterval(transmitInterval);
-        transmitInterval = null;
-      }
-      document.getElementById('send-btn').textContent = '发送数据';
-    }
-
-    // 当蓝牙断开连接时停止发送
-    function handleDisconnection() {
-      stopTransmitting();
-      characteristicCache = null;
-      document.getElementById('send-btn').disabled = true;
-      alert('蓝牙连接已断开');
-    }
-
-    // 添加断开连接的监听
-    if (bluetoothDevice) {
-      bluetoothDevice.addEventListener('gattserverdisconnected', handleDisconnection);
-    }
-
-    // 添加控制按钮的事件处理
-    function sendCommand(command) {
-      if (!characteristicCache) {
-        alert('请先连接蓝牙设备');
-        return;
-      }
-
-      const encoder = new TextEncoder();
-      const data = encoder.encode(command + '\r\n');
-      characteristicCache.writeValue(data)
-        .then(() => {
-          console.log('发送命令:', command);
-        })
-        .catch(error => {
-          console.error('发送命令失败:', error);
-        });
-    }
-
-    // 修改发送命令的函数
-    function setupButton(button, command) {
-      let isPressed = false;
-
-      // 按下按钮
-      button.addEventListener('mousedown', () => {
-        isPressed = true;
-        sendCommand(command);  // 立即发送一次
-
-        // 设置定时发送
-        sendInterval = setInterval(() => {
-          if (isPressed) {
-            sendCommand(command);
-          }
-        }, SEND_INTERVAL);
-      });
-
-      // 触摸开始（移动设备支持）
-      button.addEventListener('touchstart', (e) => {
-        e.preventDefault();  // 防止触摸事件的默认行为
-        isPressed = true;
-        sendCommand(command);
-
-        sendInterval = setInterval(() => {
-          if (isPressed) {
-            sendCommand(command);
-          }
-        }, SEND_INTERVAL);
-      });
-
-      // 停止发送的函数
-      const stopSending = () => {
-        isPressed = false;
-        if (sendInterval) {
-          clearInterval(sendInterval);
-          sendInterval = null;
-        }
-      };
-
-      // 鼠标松开
-      button.addEventListener('mouseup', stopSending);
-      button.addEventListener('mouseleave', stopSending);
-
-      // 触摸结束
-      button.addEventListener('touchend', stopSending);
-      button.addEventListener('touchcancel', stopSending);
-    }
-
-    // 为方向按钮设置长按功能
-    setupButton(document.querySelector('.btn-up'), '@shang');
-    setupButton(document.querySelector('.btn-down'), '@xia');
-    setupButton(document.querySelector('.btn-left'), '@zuo');
-    setupButton(document.querySelector('.btn-right'), '@you');
-
-    // 复位按钮保持单击功能
-    document.querySelector('.btn-reset').addEventListener('click', () => sendCommand('@fuwei'));
-
-  </script>
 </body>
-
 </html>
